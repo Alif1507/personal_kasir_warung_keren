@@ -84,3 +84,30 @@ async def payment_notification(request: Request):
             ).execute()
 
     return {"message": "OK"}
+
+
+@router.post("/success/{order_id}")
+def payment_success_manual(order_id: str, payment_type: str = "Midtrans"):
+    """
+    Fallback endpoint for local development since Midtrans webhooks cannot reach localhost.
+    Called by the frontend's onSuccess callback.
+    """
+    # Check if already paid to prevent double stock deduction
+    tx = supabase.table("transactions").select("status").eq("order_id", order_id).single().execute().data
+    if tx and tx["status"] == "success":
+        return {"message": "Already paid"}
+
+    # Update transaction status
+    supabase.table("transactions").update({"status": "success", "payment_type": payment_type}).eq("order_id", order_id).execute()
+
+    # Deduct stock
+    ts_response = supabase.table("transactions").select("id").eq("order_id", order_id).single().execute()
+    if ts_response.data:
+        tx_id = ts_response.data["id"]
+        tx_items = supabase.table("transaction_items").select("item_id, quantity").eq("transaction_id", tx_id).execute().data
+        for ti in tx_items:
+            item = supabase.table("items").select("stock").eq("id", ti["item_id"]).single().execute().data
+            new_stock = max(0, item["stock"] - ti["quantity"])
+            supabase.table("items").update({"stock": new_stock}).eq("id", ti["item_id"]).execute()
+
+    return {"message": "Payment confirmed"}

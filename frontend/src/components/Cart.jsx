@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
 export default function Cart({ cart, onUpdateQty, onRemove, onClear, total, onClose }) {
+  const [method, setMethod] = useState("cash");
+
   const formatRp = (n) =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -27,6 +30,18 @@ export default function Cart({ cart, onUpdateQty, onRemove, onClear, total, onCl
 
       const { order_id } = txRes.data;
 
+      if (method === "cash") {
+        try {
+          await api.post(`/payment/success/${order_id}?payment_type=Tunai`);
+          toast.success("Pembayaran tunai berhasil! 🎉");
+          onClear();
+          onClose();
+        } catch (err) {
+          toast.error("Gagal memproses pembayaran tunai");
+        }
+        return;
+      }
+
       // Create Snap token
       const tokenRes = await api.post("/payment/create-token", {
         order_id,
@@ -41,7 +56,13 @@ export default function Cart({ cart, onUpdateQty, onRemove, onClear, total, onCl
       // Open Midtrans snap
       if (window.snap) {
         window.snap.pay(tokenRes.data.snap_token, {
-          onSuccess: () => {
+          onSuccess: async () => {
+            try {
+              // Notify backend since webhook cannot reach localhost
+              await api.post(`/payment/success/${order_id}`);
+            } catch (err) {
+              console.error("Failed to confirm payment on backend");
+            }
             toast.success("Pembayaran berhasil! 🎉");
             onClear();
             onClose();
@@ -125,8 +146,31 @@ export default function Cart({ cart, onUpdateQty, onRemove, onClear, total, onCl
       </div>
 
       {/* Total + Checkout */}
-      <div className="border-t border-slate-100 pt-4 space-y-3">
-        <div className="flex items-center justify-between">
+      <div className="border-t border-slate-100 pt-4 pb-2 space-y-3">
+        <div className="grid grid-cols-2 gap-3 mb-2">
+          <button
+            onClick={() => setMethod("cash")}
+            className={`py-3 rounded-2xl text-sm font-bold border-2 transition-all ${
+              method === "cash"
+                ? "border-[var(--color-primary)] bg-[var(--color-primary-ultra-light)] text-[var(--color-primary)]"
+                : "border-slate-100 bg-white text-[var(--color-text-secondary)] hover:bg-slate-50"
+            }`}
+          >
+            Tunai
+          </button>
+          <button
+            onClick={() => setMethod("midtrans")}
+            className={`py-3 rounded-2xl text-sm font-bold border-2 transition-all ${
+              method === "midtrans"
+                ? "border-[var(--color-primary)] bg-[var(--color-primary-ultra-light)] text-[var(--color-primary)]"
+                : "border-slate-100 bg-white text-[var(--color-text-secondary)] hover:bg-slate-50"
+            }`}
+          >
+            Midtrans
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between pointer-events-none">
           <span className="text-sm font-semibold text-[var(--color-text-secondary)]">Total</span>
           <span className="text-xl font-extrabold text-[var(--color-text)] tracking-tight">{formatRp(total)}</span>
         </div>
