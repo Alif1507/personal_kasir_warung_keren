@@ -39,7 +39,7 @@ def create_transaction(payload: TransactionCreate):
     item_ids = list({item.id for item in payload.items})
     items_result = (
         supabase.table("items")
-        .select("id, name, price, purchase_price, is_active")
+        .select("id, name, price, purchase_price, stock, is_active")
         .in_("id", item_ids)
         .execute()
     )
@@ -58,6 +58,12 @@ def create_transaction(payload: TransactionCreate):
         db_item = item_map[cart_item.id]
         if db_item.get("is_active") is False:
             raise HTTPException(status_code=400, detail=f"Item is inactive: {db_item['name']}")
+        available_stock = int(db_item.get("stock") or 0)
+        if cart_item.quantity > available_stock:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Stok tidak cukup untuk {db_item['name']}. Tersedia: {available_stock}",
+            )
 
         unit_price = float(db_item.get("price") or 0)
         purchase_price = float(db_item.get("purchase_price") or 0)

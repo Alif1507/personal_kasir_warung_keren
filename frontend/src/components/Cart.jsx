@@ -84,8 +84,8 @@ export default function Cart({
           onClose: () => toast("Pembayaran dibatalkan", { icon: "❌" }),
         });
       }
-    } catch (e) {
-      toast.error("Gagal memproses");
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || "Gagal memproses");
     }
   };
 
@@ -136,7 +136,8 @@ export default function Cart({
               <span className="text-sm font-bold w-5 text-center">{item.quantity}</span>
               <button
                 onClick={() => onUpdateQty(item.id, 1)}
-                className="w-7 h-7 rounded-lg bg-[var(--color-primary)] text-white flex items-center justify-center active:scale-90 transition-transform"
+                disabled={item.quantity >= Number(item.stock ?? 0)}
+                className="w-7 h-7 rounded-lg bg-[var(--color-primary)] text-white flex items-center justify-center active:scale-90 transition-transform disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <Plus size={12} />
               </button>

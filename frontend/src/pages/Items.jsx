@@ -44,10 +44,18 @@ export default function Items() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const sellPrice = Number(form.price);
+    const buyPrice = Number(form.purchase_price);
+
+    if (sellPrice < buyPrice) {
+      toast.error("Harga jual tidak boleh lebih kecil dari harga beli");
+      return;
+    }
+
     const payload = {
       name: form.name,
-      price: Number(form.price),
-      purchase_price: Number(form.purchase_price),
+      price: sellPrice,
+      purchase_price: buyPrice,
       stock: Number(form.stock),
       sku: form.sku || null,
       image_url: form.image_url || null,
@@ -63,8 +71,8 @@ export default function Items() {
       }
       setShowModal(false);
       fetchItems();
-    } catch {
-      toast.error("Failed to save item");
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || "Failed to save item");
     }
   };
 
@@ -215,6 +223,7 @@ export default function Items() {
               placeholder="Harga Jual"
               value={form.price}
               onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
+              min="0"
               className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
               required
             />
@@ -223,6 +232,7 @@ export default function Items() {
               placeholder="Harga Modal"
               value={form.purchase_price}
               onChange={(e) => setForm((p) => ({ ...p, purchase_price: e.target.value }))}
+              min="0"
               className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
               required
             />
@@ -232,6 +242,7 @@ export default function Items() {
             placeholder="Stok"
             value={form.stock}
             onChange={(e) => setForm((p) => ({ ...p, stock: e.target.value }))}
+            min="0"
             className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
             required
           />

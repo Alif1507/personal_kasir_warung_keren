@@ -39,8 +39,23 @@ export default function POS() {
   }, []);
 
   const addToCart = (item) => {
+    const maxStock = Number(item.stock ?? 0);
+    let action = "none";
+
     setCart((prev) => {
       const exists = prev.find((c) => c.id === item.id);
+
+      if (maxStock <= 0) {
+        action = "out";
+        return prev;
+      }
+
+      if (exists && exists.quantity >= maxStock) {
+        action = "limit";
+        return prev;
+      }
+
+      action = "added";
       if (exists) {
         return prev.map((c) =>
           c.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
@@ -48,15 +63,43 @@ export default function POS() {
       }
       return [...prev, { ...item, quantity: 1 }];
     });
-    toast.success(`${item.name} added`, { duration: 1200 });
+
+    if (action === "out") {
+      toast.error(`${item.name} stok habis`);
+      return;
+    }
+    if (action === "limit") {
+      toast.error(`Stok ${item.name} tersisa ${maxStock}`);
+      return;
+    }
+    if (action === "added") {
+      toast.success(`${item.name} added`, { duration: 1200 });
+    }
   };
 
   const updateQty = (id, delta) => {
+    let stockError = "";
+
     setCart((prev) =>
       prev
-        .map((c) => (c.id === id ? { ...c, quantity: c.quantity + delta } : c))
+        .map((c) => {
+          if (c.id !== id) return c;
+
+          const maxStock = Number(c.stock ?? 0);
+          const nextQty = c.quantity + delta;
+          if (delta > 0 && nextQty > maxStock) {
+            stockError = `Stok ${c.name} tersisa ${maxStock}`;
+            return c;
+          }
+
+          return { ...c, quantity: nextQty };
+        })
         .filter((c) => c.quantity > 0)
     );
+
+    if (stockError) {
+      toast.error(stockError);
+    }
   };
 
   const removeFromCart = (id) => setCart((prev) => prev.filter((c) => c.id !== id));

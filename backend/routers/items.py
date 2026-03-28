@@ -22,6 +22,12 @@ def get_item(item_id: int):
 
 @router.post("")
 def create_item(item: ItemCreate):
+    if float(item.price) < float(item.purchase_price or 0):
+        raise HTTPException(
+            status_code=400,
+            detail="Harga jual tidak boleh lebih kecil dari harga beli",
+        )
+
     result = supabase.table("items").insert(item.model_dump()).execute()
     return result.data[0]
 
@@ -31,6 +37,28 @@ def update_item(item_id: int, item: ItemUpdate):
     update_data = {k: v for k, v in item.model_dump().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
+
+    existing = (
+        supabase.table("items")
+        .select("price, purchase_price")
+        .eq("id", item_id)
+        .single()
+        .execute()
+        .data
+    )
+    if not existing:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    final_price = float(update_data.get("price", existing.get("price") or 0))
+    final_purchase_price = float(
+        update_data.get("purchase_price", existing.get("purchase_price") or 0)
+    )
+    if final_price < final_purchase_price:
+        raise HTTPException(
+            status_code=400,
+            detail="Harga jual tidak boleh lebih kecil dari harga beli",
+        )
+
     result = supabase.table("items").update(update_data).eq("id", item_id).execute()
     return result.data[0]
 
