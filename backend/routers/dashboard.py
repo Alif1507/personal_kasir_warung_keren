@@ -10,7 +10,7 @@ def get_today_stats():
     today = date.today().isoformat()
     result = (
         supabase.table("transactions")
-        .select("id, total_amount, created_at, transaction_items(item_name, quantity)")
+        .select("id, total_amount, created_at, transaction_items(item_name, quantity, unit_price, purchase_price)")
         .eq("status", "success")
         .gte("created_at", f"{today}T00:00:00")
         .lte("created_at", f"{today}T23:59:59")
@@ -19,14 +19,21 @@ def get_today_stats():
 
     txs = result.data
     item_counts = {}
+    total_profit = 0
+
     for t in txs:
         for item in t.get("transaction_items", []):
             n = item["item_name"]
-            item_counts[n] = item_counts.get(n, 0) + item["quantity"]
+            qty = int(item.get("quantity") or 0)
+            item_counts[n] = item_counts.get(n, 0) + qty
+            u_price = float(item.get("unit_price") or 0)
+            p_price = float(item.get("purchase_price") or 0)
+            total_profit += (u_price - p_price) * qty
 
     top = sorted(item_counts.items(), key=lambda x: x[1], reverse=True)[:5]
     return {
         "total_revenue": sum(float(t["total_amount"]) for t in txs),
+        "total_profit": total_profit,
         "total_orders": len(txs),
         "top_items": [{"name": k, "qty": v} for k, v in top],
     }

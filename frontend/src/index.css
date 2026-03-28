@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 /* ============================================
-   INDIGO LEDGER — Mobile POS Design System
+   INDIGO LEDGER — Mobile/Desktop POS Design System
    Based on "The Digital Concierge" philosophy
    ============================================ */
 
@@ -43,8 +43,6 @@
   --font-body: 'Manrope', sans-serif;
 }
 
-
-
 html {
   font-size: 16px;
 }
@@ -55,28 +53,55 @@ body {
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  max-width: 430px;
-  margin: 0 auto;
+  margin: 0;
   min-height: 100vh;
   position: relative;
 }
 
-/* Scrollbar — hide on mobile */
+#root {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 400px at 15% -10%, rgba(91, 111, 212, 0.12), transparent 65%),
+    radial-gradient(900px 360px at 100% 0%, rgba(46, 68, 167, 0.08), transparent 70%),
+    var(--color-surface);
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 0;
-  display: none;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* Utility animations */
 @keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-slide-up {

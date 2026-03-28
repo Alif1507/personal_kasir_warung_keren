@@ -58,39 +58,60 @@ export default function POS() {
   }
 
   return (
-    <div className="animate-fade-in">
-      {/* Search Bar */}
-      <div className="relative mb-4">
-        <Search
-          size={16}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-        />
-        <input
-          type="text"
-          placeholder="Cari barang..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl text-sm font-medium text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] shadow-sm outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 transition"
-        />
-      </div>
-
-      {/* Item Grid */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-16">
-          <Package size={40} className="mx-auto text-[var(--color-text-muted)] mb-3 opacity-40" />
-          <p className="text-sm font-semibold text-[var(--color-text-muted)]">Barang tidak ditemukan</p>
+    <div className="animate-fade-in lg:grid lg:grid-cols-12 lg:gap-6">
+      <section className="lg:col-span-8">
+        <div className="relative mb-4">
+          <Search
+            size={16}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+          />
+          <input
+            type="text"
+            placeholder="Cari barang..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl text-sm font-medium text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] shadow-sm outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 transition"
+          />
         </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          {filtered.map((item) => (
-            <ItemCard key={item.id} item={item} onAdd={addToCart} />
-          ))}
-        </div>
-      )}
 
-      {/* Quick Cart Summary — floating bottom sheet trigger */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-16">
+            <Package size={40} className="mx-auto text-[var(--color-text-muted)] mb-3 opacity-40" />
+            <p className="text-sm font-semibold text-[var(--color-text-muted)]">Barang tidak ditemukan</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            {filtered.map((item) => (
+              <ItemCard key={item.id} item={item} onAdd={addToCart} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Desktop Sticky Cart */}
+      <aside className="hidden lg:block lg:col-span-4">
+        <div className="sticky top-28 bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+          <div className="mb-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
+              Checkout
+            </p>
+            <h2 className="text-xl font-extrabold tracking-tight text-[var(--color-text)]" style={{ fontFamily: "var(--font-display)" }}>
+              Keranjang
+            </h2>
+          </div>
+          <Cart
+            cart={cart}
+            onUpdateQty={updateQty}
+            onRemove={removeFromCart}
+            onClear={clearCart}
+            total={total}
+          />
+        </div>
+      </aside>
+
+      {/* Mobile Quick Cart Summary */}
       {cart.length > 0 && !showCart && (
-        <div className="fixed top-[169%] left-1/2 -translate-x-1/2 w-full max-w-[430px] px-5 pointer-events-none z-40">
+        <div className="fixed bottom-24 left-0 right-0 px-4 sm:px-5 pointer-events-none z-40 lg:hidden">
           <button
             onClick={() => setShowCart(true)}
             className="w-full bg-[var(--color-primary)] text-white rounded-2xl px-5 py-4 flex items-center justify-between shadow-xl shadow-indigo-500/30 active:scale-[0.98] transition-transform animate-slide-up pointer-events-auto"
@@ -117,14 +138,14 @@ export default function POS() {
         </div>
       )}
 
-      {/* Cart Bottom Sheet */}
+      {/* Mobile Cart Bottom Sheet */}
       {showCart && (
-        <div className="fixed top-100 inset-0 z-50">
+        <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute top-100 inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowCart(false)}
           />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white rounded-t-3xl p-5 pb-8 animate-slide-up max-h-[80vh] overflow-y-auto">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-5 pb-8 animate-slide-up max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[var(--color-text)] tracking-tight">Keranjang Anda</h2>
               <button

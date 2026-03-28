@@ -5,6 +5,7 @@ from typing import Optional, List
 class ItemCreate(BaseModel):
     name: str
     price: float
+    purchase_price: Optional[float] = 0.0
     stock: int
     category: Optional[str] = None
     image_url: Optional[str] = None
@@ -13,6 +14,7 @@ class ItemCreate(BaseModel):
 class ItemUpdate(BaseModel):
     name: Optional[str] = None
     price: Optional[float] = None
+    purchase_price: Optional[float] = None
     stock: Optional[int] = None
     category: Optional[str] = None
     image_url: Optional[str] = None
@@ -23,6 +25,7 @@ class CartItem(BaseModel):
     id: int
     name: str
     price: float
+    purchase_price: Optional[float] = 0.0
     quantity: int
 
 

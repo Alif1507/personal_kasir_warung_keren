@@ -9,17 +9,21 @@ import Transactions from "./pages/Transactions";
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[var(--color-surface)] relative">
+      <div className="min-h-screen bg-[var(--color-surface)] relative overflow-x-clip">
         <Navbar />
-        <main className="px-5 pb-24 pt-2">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/pos" element={<POS />} />
-            <Route path="/items" element={<Items />} />
-            <Route path="/transactions" element={<Transactions />} />
-          </Routes>
+
+        <main className="px-4 pb-28 pt-3 sm:px-5 lg:pl-[21rem] lg:pr-8 lg:pt-28 lg:pb-10">
+          <div className="mx-auto w-full max-w-7xl">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/pos" element={<POS />} />
+              <Route path="/items" element={<Items />} />
+              <Route path="/transactions" element={<Transactions />} />
+            </Routes>
+          </div>
         </main>
       </div>
+
       <Toaster
         position="top-center"
         toastOptions={{

@@ -3,7 +3,14 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
-export default function Cart({ cart, onUpdateQty, onRemove, onClear, total, onClose }) {
+export default function Cart({
+  cart,
+  onUpdateQty,
+  onRemove,
+  onClear,
+  total,
+  onClose = () => {},
+}) {
   const [method, setMethod] = useState("cash");
 
   const formatRp = (n) =>
@@ -24,6 +31,7 @@ export default function Cart({ cart, onUpdateQty, onRemove, onClear, total, onCl
           id: c.id,
           name: c.name,
           price: c.price,
+          purchase_price: Number(c.purchase_price ?? 0),
           quantity: c.quantity,
         })),
       });
