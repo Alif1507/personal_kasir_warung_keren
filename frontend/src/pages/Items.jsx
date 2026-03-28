@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../api/axios";
-import { Plus, Pencil, Trash2, X, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Package, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import PopupModal from "../components/PopupModal";
 
@@ -10,6 +10,9 @@ export default function Items() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: "", price: "", purchase_price: "", stock: "", sku: "", image_url: "" });
+  const [importingCsv, setImportingCsv] = useState(false);
+  const [importReport, setImportReport] = useState(null);
+  const csvInputRef = useRef(null);
 
   const fetchItems = () => {
     api
@@ -100,6 +103,37 @@ export default function Items() {
     }
   };
 
+  const openCsvPicker = () => {
+    csvInputRef.current?.click();
+  };
+
+  const handleCsvImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    setImportingCsv(true);
+    setImportReport(null);
+    try {
+      const res = await api.post("/items/import-csv", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const report = res.data;
+      setImportReport(report);
+      toast.success(
+        `Import selesai: ${report.processed_rows} diproses, ${report.failed_count} gagal`
+      );
+      fetchItems();
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || "Import CSV gagal");
+    } finally {
+      setImportingCsv(false);
+      e.target.value = "";
+    }
+  };
+
   const formatRp = (n) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
 
@@ -122,14 +156,64 @@ export default function Items() {
             {items.length} barang
           </p>
         </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[var(--color-primary)] text-white text-xs font-bold active:scale-95 transition-transform shadow-lg shadow-indigo-500/25"
-        >
-          <Plus size={14} />
-          Tambah Barang
-        </button>
+        <div className="flex items-center gap-2">
+          <input
+            ref={csvInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={handleCsvImport}
+          />
+          <button
+            onClick={openCsvPicker}
+            disabled={importingCsv}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white text-[var(--color-primary)] border border-[var(--color-primary)]/20 text-xs font-bold active:scale-95 transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <Upload size={14} />
+            {importingCsv ? "Import..." : "Import CSV"}
+          </button>
+          <button
+            onClick={openAdd}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[var(--color-primary)] text-white text-xs font-bold active:scale-95 transition-transform shadow-lg shadow-indigo-500/25"
+          >
+            <Plus size={14} />
+            Tambah Barang
+          </button>
+        </div>
       </div>
+
+      {importReport && (
+        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
+          <p className="text-sm font-bold text-[var(--color-text)]">Hasil Import CSV</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 text-xs font-semibold text-[var(--color-text-secondary)] sm:grid-cols-5">
+            <div>Total: {importReport.total_rows}</div>
+            <div>Diproses: {importReport.processed_rows}</div>
+            <div>Dibuat: {importReport.created_count}</div>
+            <div>Diupdate: {importReport.updated_count}</div>
+            <div>Gagal: {importReport.failed_count}</div>
+          </div>
+
+          {importReport.failed_count > 0 && (
+            <div className="mt-3 rounded-xl bg-[var(--color-error-light)]/40 p-3">
+              <p className="text-xs font-bold text-[var(--color-error)] mb-1">
+                Baris gagal (maks 5 ditampilkan):
+              </p>
+              <div className="space-y-1">
+                {(importReport.errors || []).slice(0, 5).map((err, idx) => (
+                  <p key={`${err.row}-${idx}`} className="text-xs text-[var(--color-text-secondary)]">
+                    Baris {err.row} ({err.item || "-"}) - {err.reason}
+                  </p>
+                ))}
+                {(importReport.errors || []).length > 5 && (
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    ... dan {(importReport.errors || []).length - 5} error lainnya
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {items.length === 0 ? (
         <div className="text-center py-16">
