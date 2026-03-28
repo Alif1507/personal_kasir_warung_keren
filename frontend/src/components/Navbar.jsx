@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -7,6 +7,8 @@ import {
   Bell,
   User,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { useAuth } from "../auth/AuthContext";
 
 const navItems = [
   { to: "/", label: "Beranda", icon: LayoutDashboard },
@@ -24,7 +26,14 @@ const titles = {
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const currentTitle = titles[location.pathname] || "Sistem Kasir";
+  const handleLogout = () => {
+    logout();
+    toast.success("Anda telah logout");
+    navigate("/login", { replace: true });
+  };
 
   return (
     <>
@@ -42,7 +51,7 @@ export default function Navbar() {
               {currentTitle}
             </p>
           </div>
-          <ActionButtons />
+          <ActionButtons onLogout={handleLogout} />
         </div>
       </header>
 
@@ -112,7 +121,7 @@ export default function Navbar() {
             {currentTitle}
           </h2>
         </div>
-        <ActionButtons />
+        <ActionButtons onLogout={handleLogout} />
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
@@ -153,13 +162,17 @@ export default function Navbar() {
   );
 }
 
-function ActionButtons() {
+function ActionButtons({ onLogout }) {
   return (
     <div className="flex items-center gap-2">
       <button className="w-10 h-10 rounded-2xl bg-[var(--color-surface-muted)] flex items-center justify-center text-[var(--color-text-secondary)] active:scale-95 transition-transform">
         <Bell size={18} />
       </button>
-      <button className="w-10 h-10 rounded-2xl bg-[var(--color-primary)] flex items-center justify-center text-white active:scale-95 transition-transform">
+      <button
+        onClick={onLogout}
+        title="Logout"
+        className="w-10 h-10 rounded-2xl bg-[var(--color-primary)] flex items-center justify-center text-white active:scale-95 transition-transform"
+      >
         <User size={18} />
       </button>
     </div>
