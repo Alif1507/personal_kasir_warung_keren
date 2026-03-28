@@ -1,7 +1,0 @@
-[features]
-rmcp_client = true
-
-[mcp_servers.supabase]
-url = "https://mcp.supabase.com/mcp?project_ref=devntoouexaxsahtfhng"
-startup_timeout_sec = 20
-tool_timeout_sec = 120
