@@ -41,7 +41,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-5 lg:space-y-6 animate-fade-in">
+    <div className="space-y-5 lg:space-y-6">
+      <div className="space-y-5 lg:space-y-6 animate-fade-in">
       <div className="hidden lg:flex items-end justify-between">
         <div>
           <p className="text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.2em]">
@@ -158,6 +159,7 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+      </div>
       </div>
 
       {/* Mobile FAB — New Order */}
