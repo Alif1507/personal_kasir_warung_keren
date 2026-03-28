@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 .env
 .codex/*
+cashier-app-plan(1).md
+DESIGN.md
