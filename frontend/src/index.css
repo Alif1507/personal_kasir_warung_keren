@@ -104,10 +104,63 @@ body {
   }
 }
 
+@keyframes modalBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalSheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-slide-up {
   animation: slideUp 0.3s ease-out;
 }
 
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out both;
+}
+
+.animate-modal-backdrop {
+  animation: modalBackdropIn 0.18s ease-out;
+}
+
+.animate-modal-pop {
+  animation: modalPopIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.animate-modal-sheet {
+  animation: modalSheetIn 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-up,
+  .animate-fade-in,
+  .animate-modal-backdrop,
+  .animate-modal-pop,
+  .animate-modal-sheet {
+    animation: none !important;
+  }
 }

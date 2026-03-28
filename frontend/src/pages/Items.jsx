@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { Plus, Pencil, Trash2, X, Package } from "lucide-react";
 import toast from "react-hot-toast";
+import PopupModal from "../components/PopupModal";
 
 export default function Items() {
   const [items, setItems] = useState([]);
@@ -182,91 +183,87 @@ export default function Items() {
         </div>
       )}
 
-      {showModal && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-
-          <div className="absolute inset-x-0 bottom-0 lg:inset-0 lg:flex lg:items-center lg:justify-center lg:p-6">
-            <div className="w-full bg-white rounded-t-3xl lg:rounded-3xl p-5 pb-8 animate-slide-up lg:max-w-2xl lg:max-h-[90vh] lg:overflow-y-auto shadow-xl shadow-slate-900/10">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold text-[var(--color-text)] tracking-tight">
-                  {editing ? "Edit Barang" : "Barang Baru"}
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="w-8 h-8 rounded-xl bg-[var(--color-surface-muted)] flex items-center justify-center text-[var(--color-text-secondary)] active:scale-95 transition-transform"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Nama barang"
-                  value={form.name}
-                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                  className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                  required
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="number"
-                    placeholder="Harga Jual"
-                    value={form.price}
-                    onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
-                    className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                    required
-                  />
-                  <input
-                    type="number"
-                    placeholder="Harga Modal"
-                    value={form.purchase_price}
-                    onChange={(e) => setForm((p) => ({ ...p, purchase_price: e.target.value }))}
-                    className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                    required
-                  />
-                </div>
-                <input
-                  type="number"
-                  placeholder="Stok"
-                  value={form.stock}
-                  onChange={(e) => setForm((p) => ({ ...p, stock: e.target.value }))}
-                  className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="SKU (optional)"
-                  value={form.sku}
-                  onChange={(e) => setForm((p) => ({ ...p, sku: e.target.value }))}
-                  className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                />
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1.5">
-                    Gambar
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[var(--color-primary-ultra-light)] file:text-[var(--color-primary)] file:font-semibold file:text-xs"
-                  />
-                  {form.image_url && (
-                    <img src={form.image_url} alt="Preview" className="w-16 h-16 rounded-xl mt-2 object-cover" />
-                  )}
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-4 rounded-2xl bg-[var(--color-primary)] text-white text-sm font-bold active:scale-[0.98] transition-transform shadow-lg shadow-indigo-500/25 mt-2"
-                >
-                  {editing ? "Simpan Perubahan" : "Buat Barang"}
-                </button>
-              </form>
-            </div>
-          </div>
+      <PopupModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        panelClassName="lg:max-w-2xl"
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-bold text-[var(--color-text)] tracking-tight">
+            {editing ? "Edit Barang" : "Barang Baru"}
+          </h2>
+          <button
+            onClick={() => setShowModal(false)}
+            className="w-8 h-8 rounded-xl bg-[var(--color-surface-muted)] flex items-center justify-center text-[var(--color-text-secondary)] active:scale-95 transition-transform"
+          >
+            <X size={16} />
+          </button>
         </div>
-      )}
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            type="text"
+            placeholder="Nama barang"
+            value={form.name}
+            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+            className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+            required
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="number"
+              placeholder="Harga Jual"
+              value={form.price}
+              onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
+              className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+              required
+            />
+            <input
+              type="number"
+              placeholder="Harga Modal"
+              value={form.purchase_price}
+              onChange={(e) => setForm((p) => ({ ...p, purchase_price: e.target.value }))}
+              className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+              required
+            />
+          </div>
+          <input
+            type="number"
+            placeholder="Stok"
+            value={form.stock}
+            onChange={(e) => setForm((p) => ({ ...p, stock: e.target.value }))}
+            className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+            required
+          />
+          <input
+            type="text"
+            placeholder="SKU (optional)"
+            value={form.sku}
+            onChange={(e) => setForm((p) => ({ ...p, sku: e.target.value }))}
+            className="w-full px-4 py-3 bg-[var(--color-surface)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+          />
+          <div>
+            <label className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1.5">
+              Gambar
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[var(--color-primary-ultra-light)] file:text-[var(--color-primary)] file:font-semibold file:text-xs"
+            />
+            {form.image_url && (
+              <img src={form.image_url} alt="Preview" className="w-16 h-16 rounded-xl mt-2 object-cover" />
+            )}
+          </div>
+          <button
+            type="submit"
+            className="w-full py-4 rounded-2xl bg-[var(--color-primary)] text-white text-sm font-bold active:scale-[0.98] transition-transform shadow-lg shadow-indigo-500/25 mt-2"
+          >
+            {editing ? "Simpan Perubahan" : "Buat Barang"}
+          </button>
+        </form>
+      </PopupModal>
     </div>
   );
 }

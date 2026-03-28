@@ -4,6 +4,7 @@ import ItemCard from "../components/ItemCard";
 import Cart from "../components/Cart";
 import { Search, ShoppingBag, X } from "lucide-react";
 import toast from "react-hot-toast";
+import PopupModal from "../components/PopupModal";
 
 export default function POS() {
   const [items, setItems] = useState([]);
@@ -18,6 +19,23 @@ export default function POS() {
       .then((r) => setItems(r.data))
       .catch(() => toast.error("Failed to load items"))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = (event) => {
+      if (event.matches) setShowCart(false);
+    };
+
+    if (media.matches) setShowCart(false);
+
+    if (media.addEventListener) {
+      media.addEventListener("change", closeOnDesktop);
+      return () => media.removeEventListener("change", closeOnDesktop);
+    }
+
+    media.addListener(closeOnDesktop);
+    return () => media.removeListener(closeOnDesktop);
   }, []);
 
   const addToCart = (item) => {
@@ -58,8 +76,8 @@ export default function POS() {
   }
 
   return (
-    <div className="animate-fade-in lg:grid lg:grid-cols-12 lg:gap-6">
-      <section className="lg:col-span-8">
+    <div className="lg:grid lg:grid-cols-12 lg:gap-6">
+      <section className="animate-fade-in lg:col-span-8">
         <div className="relative mb-4">
           <Search
             size={16}
@@ -139,33 +157,30 @@ export default function POS() {
       )}
 
       {/* Mobile Cart Bottom Sheet */}
-      {showCart && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      <PopupModal
+        open={showCart}
+        onClose={() => setShowCart(false)}
+        containerClassName="lg:hidden"
+        panelClassName="max-h-[80vh]"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-[var(--color-text)] tracking-tight">Keranjang Anda</h2>
+          <button
             onClick={() => setShowCart(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-5 pb-8 animate-slide-up max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-[var(--color-text)] tracking-tight">Keranjang Anda</h2>
-              <button
-                onClick={() => setShowCart(false)}
-                className="w-8 h-8 rounded-xl bg-[var(--color-surface-muted)] flex items-center justify-center text-[var(--color-text-secondary)] active:scale-95 transition-transform"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <Cart
-              cart={cart}
-              onUpdateQty={updateQty}
-              onRemove={removeFromCart}
-              onClear={clearCart}
-              total={total}
-              onClose={() => setShowCart(false)}
-            />
-          </div>
+            className="w-8 h-8 rounded-xl bg-[var(--color-surface-muted)] flex items-center justify-center text-[var(--color-text-secondary)] active:scale-95 transition-transform"
+          >
+            <X size={16} />
+          </button>
         </div>
-      )}
+        <Cart
+          cart={cart}
+          onUpdateQty={updateQty}
+          onRemove={removeFromCart}
+          onClear={clearCart}
+          total={total}
+          onClose={() => setShowCart(false)}
+        />
+      </PopupModal>
     </div>
   );
 }

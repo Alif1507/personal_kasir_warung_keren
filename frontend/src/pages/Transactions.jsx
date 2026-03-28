@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { Receipt, X } from "lucide-react";
 import toast from "react-hot-toast";
+import PopupModal from "../components/PopupModal";
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -109,64 +110,64 @@ export default function Transactions() {
         </div>
       )}
 
-      {selected && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelected(null)} />
-
-          <div className="absolute inset-x-0 bottom-0 lg:inset-0 lg:flex lg:items-center lg:justify-center lg:p-6">
-            <div className="w-full bg-white rounded-t-3xl lg:rounded-3xl p-5 pb-8 animate-slide-up max-h-[85vh] overflow-y-auto shadow-xl shadow-slate-900/10 lg:max-w-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-lg font-bold text-[var(--color-text)] tracking-tight">
-                    {selected.order_id}
-                  </h2>
-                  <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                    {new Date(selected.created_at).toLocaleString("en")}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelected(null)}
-                  className="w-8 h-8 rounded-xl bg-[var(--color-surface-muted)] flex items-center justify-center text-[var(--color-text-secondary)] active:scale-95 transition-transform"
-                >
-                  <X size={16} />
-                </button>
+      <PopupModal
+        open={Boolean(selected)}
+        onClose={() => setSelected(null)}
+        panelClassName="lg:max-w-2xl"
+      >
+        {selected && (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-[var(--color-text)] tracking-tight">
+                  {selected.order_id}
+                </h2>
+                <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                  {new Date(selected.created_at).toLocaleString("en")}
+                </p>
               </div>
-
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-lg ${statusColor(selected.status)}`}>
-                  {selected.status}
-                </span>
-                {selected.payment_type && (
-                  <span className="text-[10px] font-semibold text-[var(--color-text-muted)] bg-[var(--color-surface-muted)] px-2 py-0.5 rounded-lg uppercase">
-                    {selected.payment_type}
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-2 mb-4">
-                {(selected.transaction_items || []).map((item, i) => (
-                  <div key={i} className="flex items-center justify-between bg-[var(--color-surface)] rounded-xl p-3">
-                    <div>
-                      <p className="text-sm font-semibold text-[var(--color-text)]">{item.item_name}</p>
-                      <p className="text-xs text-[var(--color-text-muted)]">
-                        {item.quantity} × {formatRp(item.unit_price)}
-                      </p>
-                    </div>
-                    <span className="text-sm font-bold text-[var(--color-text)]">{formatRp(item.subtotal)}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border border-slate-100 pt-3 flex items-center justify-between">
-                <span className="text-sm font-semibold text-[var(--color-text-secondary)]">Total</span>
-                <span className="text-xl font-extrabold text-[var(--color-text)] tracking-tight">
-                  {formatRp(selected.total_amount)}
-                </span>
-              </div>
+              <button
+                onClick={() => setSelected(null)}
+                className="w-8 h-8 rounded-xl bg-[var(--color-surface-muted)] flex items-center justify-center text-[var(--color-text-secondary)] active:scale-95 transition-transform"
+              >
+                <X size={16} />
+              </button>
             </div>
-          </div>
-        </div>
-      )}
+
+            <div className="flex items-center gap-2 mb-4">
+              <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-lg ${statusColor(selected.status)}`}>
+                {selected.status}
+              </span>
+              {selected.payment_type && (
+                <span className="text-[10px] font-semibold text-[var(--color-text-muted)] bg-[var(--color-surface-muted)] px-2 py-0.5 rounded-lg uppercase">
+                  {selected.payment_type}
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-2 mb-4">
+              {(selected.transaction_items || []).map((item, i) => (
+                <div key={i} className="flex items-center justify-between bg-[var(--color-surface)] rounded-xl p-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--color-text)]">{item.item_name}</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                      {item.quantity} × {formatRp(item.unit_price)}
+                    </p>
+                  </div>
+                  <span className="text-sm font-bold text-[var(--color-text)]">{formatRp(item.subtotal)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="border border-slate-100 pt-3 flex items-center justify-between">
+              <span className="text-sm font-semibold text-[var(--color-text-secondary)]">Total</span>
+              <span className="text-xl font-extrabold text-[var(--color-text)] tracking-tight">
+                {formatRp(selected.total_amount)}
+              </span>
+            </div>
+          </>
+        )}
+      </PopupModal>
     </div>
   );
 }
