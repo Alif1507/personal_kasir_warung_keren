@@ -138,6 +138,12 @@ curl http://localhost:8010/
 docker compose down
 ```
 
+## Backend API Docs
+
+For full backend API documentation (models, cURL examples, error guide, payment flow, CSV import flow), see:
+
+- [backend/API.md](./backend/API.md)
+
 ## API Endpoints
 
 Base backend URL:
@@ -145,50 +151,15 @@ Base backend URL:
 - Local: `http://localhost:8000`
 - Docker: `http://localhost:8010`
 
-### Health
+Quick endpoint groups:
 
-- `GET /`  
-  Returns API status message.
+- Health: `GET /`
+- Items: `/api/items` (+ image upload, CSV import)
+- Transactions: `/api/transactions`
+- Dashboard: `/api/dashboard`
+- Payment: `/api/payment`
 
-### Items (`/api/items`)
-
-- `GET /api/items`  
-  List active items.
-- `GET /api/items/{item_id}`  
-  Get single item.
-- `POST /api/items`  
-  Create item.
-- `PUT /api/items/{item_id}`  
-  Update item.
-- `DELETE /api/items/{item_id}`  
-  Soft delete item (`is_active=false`).
-- `POST /api/items/upload-image`  
-  Upload image to Supabase Storage bucket `item-images`.
-
-### Transactions (`/api/transactions`)
-
-- `GET /api/transactions`  
-  List transactions with `transaction_items`.
-- `GET /api/transactions/{transaction_id}`  
-  Get one transaction with its items.
-- `POST /api/transactions`  
-  Create pending transaction and snapshot item prices.
-
-### Dashboard (`/api/dashboard`)
-
-- `GET /api/dashboard/today`  
-  Revenue, profit, total orders, top items for today.
-- `GET /api/dashboard/chart`  
-  Last 7 days revenue.
-
-### Payment (`/api/payment`)
-
-- `POST /api/payment/create-token`  
-  Generate Midtrans Snap token for an order.
-- `POST /api/payment/notification`  
-  Midtrans webhook callback, updates payment status and deducts stock on success.
-- `POST /api/payment/success/{order_id}`  
-  Manual success endpoint for localhost/dev fallback (used when webhook cannot reach local server).
+Use [backend/API.md](./backend/API.md) for complete request/response examples and operational guidance.
 
 ## Expected Supabase Tables
 
